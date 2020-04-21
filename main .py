@@ -15,9 +15,9 @@ env = gym.make('CartPole-v1')
 env.reset()
 observation = env.reset()
 model = Model(input_dim = 4, output_dim = 1)
-opt = optim.Adam(model.parameters())
+opt = optim.Adam(model.parameters(), weight_decay= 1e-4)
 criterion = torch.nn.MSELoss()
-iterations = 3000
+iterations = 10000
 
 print(env.action_space.sample())
 
@@ -26,14 +26,15 @@ for i in range(iterations):
     action = model(torch.from_numpy(observation).float())
     bi_action = to_binary(action.detach().numpy()[0])
     observation, reward, done, info = env.step(bi_action)
-    loss = criterion(action, action * reward + 1)
+    loss = criterion(action, action * reward + 0.5)
     loss.backward()
-    opt.step()
+    if reward:
+        opt.step()
     env.render()
     if abs(observation[0]) > 2:
         env.reset()
     
-    if i % 100 == 0:
-        print("iteration : ", i)
+    if i % 5 == 0:
+        print("iteration : ", i,"  action : ",bi_action, "  balanced : ", reward, "  model output: ", action.item(), end='\r')
 
 env.close()
