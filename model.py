@@ -9,18 +9,18 @@ class Model():
         self.input_dim = input_dim
         self.output_dim = output_dim
 
-        self.w1 = np.random.rand(32, self.input_dim) * init_coef
-        self.b1 = np.random.rand(32, 1) * init_coef
-        self.w2 = np.random.rand(self.output_dim, 32) * init_coef
+        self.w1 = np.random.rand(128, self.input_dim) * init_coef
+        self.b1 = np.random.rand(128, 1) * init_coef
+        self.w2 = np.random.rand(self.output_dim, 128) * init_coef
         self.b2 = np.random.rand(self.output_dim, 1) * init_coef
         
         self.score = 0
 
     def salt(self, spread):
 
-        self.w1 += (np.random.rand(32, self.input_dim) - .5 ) * spread
-        self.b1 += (np.random.rand(32, 1) - .5) * spread
-        self.w2 += (np.random.rand(self.output_dim, 32) - .5 ) * spread
+        self.w1 += (np.random.rand(128, self.input_dim) - .5 ) * spread
+        self.b1 += (np.random.rand(128, 1) - .5) * spread
+        self.w2 += (np.random.rand(self.output_dim, 128) - .5 ) * spread
         self.b2 += (np.random.rand(self.output_dim, 1)  - .5) * spread
 
         #print(self.w1, end = "\r")

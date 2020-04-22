@@ -2,21 +2,22 @@ import gym
 from gym import spaces
 import numpy as np
 import multiprocessing as mp
+import pickle as pkl
 from model import Model
 
 env = gym.make('CartPole-v1')
 
-pool_size = 4
-epochs = 100
-iterations = 512
-generation_size = 128
+pool_size = 32
+epochs = 25
+iterations = 10000
+generation_size = 32
 generation = [Model()] * generation_size
-spread = 0.1
+base_spread = spread = 0.02
+model_name = "model.pickle"
 
-def next(generation, spread):
+def next(generation, spread, top_model):
 
-    top_model = generation[0]
-    record = -1
+    record = top_model.score
     generation_size = len(generation)
     for model in generation:
         if model.score > record:
@@ -27,7 +28,7 @@ def next(generation, spread):
         generation[i] = top_model.salt(spread)
         generation[i].score = 0
 
-    return generation, record
+    return generation, record, top_model
 
 def eval(model):
 
@@ -38,6 +39,7 @@ def eval(model):
         observation, reward, _, _ = env.step(action)
         model.score += reward
         if abs(observation[0]) > 2:
+            model.score -= 1
             env.reset()
 
     return model
@@ -58,20 +60,22 @@ def view(model):
 pool = mp.Pool(pool_size)
 
 top_record = 0
+top_model = Model()
 for i in range(epochs):
 
     if __name__ == '__main__':
-        print("epoch : ", i, " top record : ", top_record, " spread : ", spread)
+        print("epoch : ", i, " top record : ", top_record, " spread : ", round(spread, 6), end = "")
         scored_generation = pool.map(eval, generation)
-        generation, record = next(scored_generation, spread)
-
+        generation, record, top_model = next(scored_generation, spread, top_model)
+        print(" record : ", record)
+        spread = base_spread * ((iterations - record) / iterations)
         if record > top_record:
-            spread *= .9
             top_record = record
         else:
             pass
 
+with open(model_name, 'wb') as handle:
+    pkl.dump(top_model, handle)
         
-view(generation[0])
-
+view(top_model)
 env.close()
