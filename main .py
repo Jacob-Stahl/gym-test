@@ -8,11 +8,11 @@ from model import Model
 env = gym.make('CartPole-v1')
 
 pool_size = 32
-epochs = 25
+epochs = 20
 iterations = 10000
-generation_size = 32
+generation_size = 128
 generation = [Model()] * generation_size
-base_spread = spread = 0.02
+base_spread = spread = 0.1
 model_name = "model.pickle"
 
 def next(generation, spread, top_model):
@@ -39,11 +39,10 @@ def eval(model):
         observation, reward, _, _ = env.step(action)
         model.score += reward
         if abs(observation[0]) > 2:
-            model.score -= 1
+            model.score -= 10
             env.reset()
 
     return model
-
 
 def view(model):
 
